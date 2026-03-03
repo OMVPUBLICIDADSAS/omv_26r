@@ -23,7 +23,7 @@ async function bootstrap() {
       if (!origin || allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        callback(new Error('Not allowed by CORS_ORIGINS'));
       }
     },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
