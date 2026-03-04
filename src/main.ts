@@ -71,8 +71,8 @@ bootstrap();
 // create basic html index?
 
 /*
-SMPT_EMAIL_SHORT=gmail
-SMPT_EMAIL_LONG=smtp.gmail.com
+SMTP_EMAIL_SHORT=gmail
+SMTP_EMAIL_LONG=smtp.gmail.com
 EMAIL_USER=omvpublicidadcotiza@gmail.com
 EMAIL_PASS=omb_12346
 EMAIL_PASS_16=hdqcevfpdefmcybx

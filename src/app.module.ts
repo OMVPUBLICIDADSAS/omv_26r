@@ -30,7 +30,7 @@ import { GeneralModule } from './general/general.module';
       }
       /* 
       transport: {
-          host: process.env.SMPT_EMAIL_SHORT,
+          host: process.env.SMTP_EMAIL_SHORT,
         auth: {
           user: process.env.EMAIL_USER,
           pass: process.env.EMAIL_PASS_16
