@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 // import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, Logger } from '@nestjs/common';
 import { urlencoded, json } from 'express';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
@@ -16,16 +16,21 @@ async function bootstrap() {
   app.use(json({ limit: '50mb' }));
   app.use(urlencoded({ extended: true, limit: '50mb' }));
 
+  const logger = new Logger('Bootstrap');
+
   const allowedOrigins = process.env.CORS_ORIGINS 
     ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim()) 
     : [];
 
+  logger.log(`✅ Orígenes permitidos cargados: ${JSON.stringify(allowedOrigins)}`);
+
   app.enableCors({
     origin: (origin, callback) => {
+      logger.log(`🔍 Origen entrante: ${origin}`);
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        console.error(`Blocked by CORS: ${origin}. Allowed: ${JSON.stringify(allowedOrigins)}`);
+        logger.error(`⛔ Bloqueado por CORS. Origen: ${origin}. Permitidos: ${JSON.stringify(allowedOrigins)}`);
         callback(new Error('Not allowed by CORS_ORIGINS'));
       }
     },
