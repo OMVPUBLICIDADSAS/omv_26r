@@ -31,7 +31,7 @@ const mailerLogger = new Logger('MailerModule');
             pass: process.env.EMAIL_PASS_16,
           },
         };
-        mailerLogger.log(`📧 Opciones de transporte de Mailer cargadas: { host: '${transportOptions.host}', port: ${transportOptions.port}, secure: ${transportOptions.secure}, user: '${transportOptions.auth.user}' }`);
+        mailerLogger.log(`📧 Estas son las opciones de envío: { host: '${transportOptions.host}', port: ${transportOptions.port}, secure: ${transportOptions.secure}, user: '${transportOptions.auth.user}' }`);
         return {
           transport: transportOptions,
         };
