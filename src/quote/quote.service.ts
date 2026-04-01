@@ -46,7 +46,7 @@ export class QuoteService {
 
   async resend(id: string, updateQuoteDto: UpdateQuoteDto): Promise<Quote> {
     const pdfBuffer = await this.html2pdf(updateQuoteDto.htmlQuote);
-    return this.emails.quoteEmail(updateQuoteDto, pdfBuffer);
+    return this.emails.quoteEmail(updateQuoteDto, Buffer.from(pdfBuffer));
   }
 
   async update(id: string, updateQuoteDto: UpdateQuoteDto): Promise<Quote> {
@@ -56,7 +56,7 @@ export class QuoteService {
     if (prevQuote.status === 4) throw new HttpException('FORBIDDEN', 403);
     if (updateQuoteDto.status === 4) {
       const pdfBuffer = await this.html2pdf(updateQuoteDto.htmlQuote);
-      await this.emails.quoteEmail(updateQuoteDto, pdfBuffer);
+      return this.emails.quoteEmail(updateQuoteDto, Buffer.from(pdfBuffer));
     }
     return await this.quoteModel.findByIdAndUpdate(id, updateQuoteDto, { new: true });
   }
@@ -70,7 +70,7 @@ export class QuoteService {
   async html2pdf(htmlQuote: string, options = {}) {
     try {
       const browser = await puppeteer.launch({
-        headless: 'new',
+        headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox']
       });
       const page = await browser.newPage();

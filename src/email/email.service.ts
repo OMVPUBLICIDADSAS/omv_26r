@@ -1,5 +1,5 @@
-import { Injectable, HttpException } from '@nestjs/common';
-// import { CreateEmailDto } from './dto/create-email.dto';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { CreateEmailDto } from './dto/create-email.dto';
 import { UpdateEmailDto } from './dto/update-email.dto';
 import { MailerService } from '@nestjs-modules/mailer';
 import { UpdateQuoteDto } from 'src/quote/dto/update-quote.dto';
@@ -22,10 +22,9 @@ export class EmailService {
       ],
     })
       .catch((e) => {
-        // console.log(e);
-        throw new HttpException(`ERROR_EMAIL ${e}`, 403);
+        console.error(e);
+        throw new HttpException(`ERROR_EMAIL ${e}`, HttpStatus.INTERNAL_SERVER_ERROR);
       });
-    // return 'ok';
   }
 
   async newQuoteEmail(createdQuote: UpdateQuoteDto, maillist: string) {
@@ -36,43 +35,18 @@ export class EmailService {
       subject: `Nueva solicitud de cotización. Cliente: ${createdQuote.client_name} Correo: ${createdQuote.client_email}`,
     })
       .catch((e) => {
-        // console.log(e);
-        throw new HttpException(`ERROR_EMAIL ${e}`, 403);
+        console.error(e);
+        throw new HttpException(`ERROR_EMAIL ${e}`, HttpStatus.INTERNAL_SERVER_ERROR);
       });
-    // return 'ok';
   }
 
-  async defaultEmailHtml(emailDto: UpdateEmailDto) {
+  async defaultEmailHtml(emailDto: CreateEmailDto) {
     await this.mails.sendMail({
       to: [emailDto.to, 'gerente@omvpublicidad.com'],
       from: emailDto.from,
       subject: emailDto.subject,
       html: emailDto.html,
-      // attachments: emailDto.attachments
     })
     return 'ok';
   }
-
-  /*
-
-  create(createEmailDto: CreateEmailDto) {
-    return 'This action adds a new email';
-  }
-
-  findAll() {
-    return `This action returns all email`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} email`;
-  }
-
-  update(id: number, updateEmailDto: UpdateEmailDto) {
-    return `This action updates a #${id} email`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} email`;
-  }
-  */
 }

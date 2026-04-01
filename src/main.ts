@@ -6,20 +6,23 @@ import { ValidationPipe, Logger } from '@nestjs/common';
 import { urlencoded, json } from 'express';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
+import { ConfigService } from '@nestjs/config';
 
 // Comentarios para ver que pasa con imagenes
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule); // para servir html desde Express
-  // const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+
   // app.setGlobalPrefix('api');
   app.use(json({ limit: '50mb' }));
   app.use(urlencoded({ extended: true, limit: '50mb' }));
 
   const logger = new Logger('Bootstrap');
 
-  const allowedOrigins = process.env.CORS_ORIGINS 
-    ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim()) 
+  const corsOrigins = configService.get<string>('CORS_ORIGINS');
+  const allowedOrigins = corsOrigins 
+    ? corsOrigins.split(',').map(origin => origin.trim()) 
     : [];
 
   logger.log(`✅ Orígenes permitidos cargados: ${JSON.stringify(allowedOrigins)}`);
@@ -60,20 +63,8 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, '..', 'page'), { prefix: "/" });
   // app.useStaticAssets(join(__dirname, '..', 'page'), { prefix: "*" });
   
-
-  await app.listen(process.env.PORT);
+  const port = configService.get<number>('PORT') || 3000;
+  await app.listen(port);
+  logger.log(`🚀 Application is running on: http://localhost:${port}`);
 }
 bootstrap();
-
-// https://www.youtube.com/watch?v=K7TYj86Z3rY&t=3614s
-// https://www.youtube.com/watch?v=xRXHQlqA3Ak&t=2s min 12 para atlas mongo
-
-// create basic html index?
-
-/*
-SMTP_EMAIL_SHORT=gmail
-SMTP_EMAIL_LONG=smtp.gmail.com
-EMAIL_USER=omvpublicidadcotiza@gmail.com
-EMAIL_PASS=omb_12346
-EMAIL_PASS_16=hdqcevfpdefmcybx
-*/

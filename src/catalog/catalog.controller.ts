@@ -85,7 +85,7 @@ export class CatalogController {
     for (let i = 0; i < files.length; i++) {
       const upr = files[i].originalname.toUpperCase();
       const destPath = join(apath, upr);
-      fs.writeFileSync(destPath, files[i].buffer);
+      fs.writeFileSync(destPath, files[i].buffer as any);
     }
     return { status: 200, message: process.env.RAILWAY_VOLUME_MOUNT_PATH }
   }
@@ -108,9 +108,9 @@ export class CatalogController {
     const itemArray: Catalog[] = [];
     
     const workbook = new Workbook();
-    await workbook.xlsx.readFile(file.path).then((workbook) => {
-      const worksheetProd = workbook.getWorksheet("producto");
-      const worksheetMat = workbook.getWorksheet("materiales");
+    await workbook.xlsx.readFile(file.path);
+    const worksheetProd = workbook.getWorksheet("producto");
+    const worksheetMat = workbook.getWorksheet("materiales");
       const headerRows = 2;
       const prodRowC = worksheetProd.actualRowCount; // determine the range of populated data
       const matRowC = worksheetMat.actualRowCount; // determine the range of populated data
@@ -161,8 +161,7 @@ export class CatalogController {
         };
         itemArray.push(formData as unknown as Catalog);
       }
-      // get worksheet, read rows, etc
-    });
+
     // Write to txt
 
     const content = JSON.stringify(itemArray);
@@ -181,7 +180,7 @@ export class CatalogController {
 
     for (let r = headerRows; r <= matNumRows; r++) {
       // console.log(matData.getRow(r).getCell(1).value);
-      if (matData.getRow(r).getCell(1).value === prodCodigo) {
+      if (matData.getRow(r).getCell(1).text === prodCodigo) {
 
         const imagelist = [];
         for (let k = 6; k < 10; k++) {
