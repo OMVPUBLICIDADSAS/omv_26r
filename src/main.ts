@@ -23,7 +23,7 @@ async function bootstrap() {
   const corsOrigins = configService.get<string>('CORS_ORIGINS');
   const allowedOrigins = corsOrigins 
     ? corsOrigins.split(',').map(origin => origin.trim()) 
-    : [];
+    : ['http://localhost:4201'];
 
   logger.log(`✅ Orígenes permitidos cargados: ${JSON.stringify(allowedOrigins)}`);
 

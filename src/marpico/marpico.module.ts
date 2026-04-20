@@ -10,8 +10,11 @@ import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Marpico.name, schema: MarpicoSchema }]),
-    ConfigModule.forRoot(),
-    HttpModule, GeneralModule],
+    ConfigModule,
+    HttpModule.register({
+      timeout: 10000, // 10 segundos de límite
+      maxRedirects: 5,
+    }), GeneralModule],
   controllers: [MarpicoController],
   providers: [MarpicoService]
 })

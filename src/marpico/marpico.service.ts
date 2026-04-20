@@ -24,8 +24,8 @@ export class MarpicoService {
   @Cron('0 */12 * * *')
   async handleCron() {
     this.logger.log('Iniciando actualización programada de Marpico...');
-    await this.updateFromMarpico();
-    this.logger.log('Sincronización finalizada.');
+    const result = await this.updateFromMarpico();
+    this.logger.log(`Sincronización finalizada. Registros: ${result.count}`);
   }
 
   create(createMarpicoDto: CreateMarpicoDto) {
@@ -50,14 +50,23 @@ export class MarpicoService {
       // Procesamos datos antes de borrar la DB local para asegurar disponibilidad
       const tableData = await this.data2Schema(response.data);
 
-      // Si el procesamiento fue exitoso, actualizamos la colección
-      await this.marpicoModel.deleteMany({});
-      const result = await this.marpicoModel.insertMany(tableData);
+      // Usamos una sesión para asegurar que si algo falla, no perdamos los datos viejos
+      // O al menos validamos que tableData tenga contenido antes de borrar
+      if (tableData.length > 0) {
+        await this.marpicoModel.deleteMany({});
+        const result = await this.marpicoModel.insertMany(tableData);
+        return { status: 200, message: 'Updated successfully', count: result.length };
+      } else {
+        throw new Error('No data received from Marpico to update');
+      }
+    } catch (error: unknown) {
+      const isError = error instanceof Error;
+      const message = isError ? error.message : 'INTERNAL_SERVER_ERROR';
+      const stack = isError ? error.stack : undefined;
+      const status = (error as any)?.status || 500;
 
-      return { status: 200, message: 'Updated successfully', count: result.length };
-    } catch (error) {
-      this.logger.error('Fallo en la actualización de Marpico', error.stack);
-      throw new HttpException(error.message || 'INTERNAL_SERVER_ERROR', error.status || 500);
+      this.logger.error('Fallo en la actualización de Marpico', stack);
+      throw new HttpException(message, status);
     }
   }
 
@@ -85,14 +94,15 @@ export class MarpicoService {
         item.existencia = existenciaTotal;
 
         const catValue = categoryMap.get(item.subcategoria_1.categoria) || item.subcategoria_1.categoria;
-        
-        item.subcategoria_1 = { 
-          jerarquia: item.subcategoria_1.jerarquia, 
-          nombre: item.subcategoria_1.nombre, 
-          categoria: { jerarquia: catValue, nombre: catValue } 
-        };
 
-        return item;
+        return {
+          ...item,
+          subcategoria_1: {
+            jerarquia: item.subcategoria_1.jerarquia,
+            nombre: item.subcategoria_1.nombre,
+            categoria: { jerarquia: catValue, nombre: catValue }
+          }
+        };
       });
   }
 
