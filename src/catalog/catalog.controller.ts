@@ -1,4 +1,19 @@
-import { Controller, Get, Post, Param, UseInterceptors, UploadedFile, Res, UploadedFiles, UseGuards, Put, Delete, Body } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  Put,
+  Res,
+  UploadedFile,
+  UploadedFiles,
+  UseGuards,
+  UseInterceptors
+} from '@nestjs/common';
+
 import { CatalogService } from './catalog.service';
 import { AnyFilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -67,10 +82,16 @@ export class CatalogController {
     if (process.env.DEV_STATUS === 'true') {
       apath = join(__dirname, process.env.DEFA_DIR);
     }
-   apath = join(apath, upr);
-    return of(res.sendFile(apath));
-  }
+    apath = join(apath, upr);
 
+    if (!fs.existsSync(apath)) {
+      throw new NotFoundException(`Image ${imagename} not found.`);
+    }
+    // res.sendFile ya maneja la respuesta, no necesita ser envuelto en 'of'
+    res.sendFile(apath);
+    return; // No retornar un Observable si res.sendFile ya envía la respuesta
+  }
+ 
   @Roles('P')
   @UseGuards(RolesGuard)
   @Post('images2dtbase_')

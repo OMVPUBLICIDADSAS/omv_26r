@@ -62,7 +62,7 @@ export class QuoteService {
   }
 
   async remove(id: string) {
-    return await this.quoteModel.findByIdAndRemove(id);
+    return await this.quoteModel.findByIdAndDelete(id);
   }
 
   // https://github.com/saemhco/nestjs-html-pdf

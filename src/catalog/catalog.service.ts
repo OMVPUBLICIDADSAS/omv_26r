@@ -70,7 +70,7 @@ export class CatalogService {
   }
 
   remove(id: string) {
-    return this.catalogModel.findByIdAndRemove(id);
+    return this.catalogModel.findByIdAndDelete(id);
   }
 
   async dtbase2Json() {

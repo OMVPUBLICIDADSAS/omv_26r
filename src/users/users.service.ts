@@ -27,7 +27,7 @@ export class UsersService {
   async login(loginUserDto: LoginUserDto) {
     //    console.log('service', registerUserDto );
     // Verifica si existe la coleccion
-    if (await this.usersModel.count() === 0) {
+    if (await this.usersModel.countDocuments() === 0) {
       const plainToHash = await hash('user001', Number(process.env.HASH));
       const reguser: RegisterUserDto ={
         name: 'user', email:'user@user.user', password: plainToHash, rol: ['Q', 'P', 'U', 'C']
@@ -75,6 +75,6 @@ export class UsersService {
   }
 
   async remove(id: string) {
-    return await this.usersModel.findByIdAndRemove(id);
+    return await this.usersModel.findByIdAndDelete(id);
   }
 }

@@ -40,7 +40,7 @@ export class QuoteController {
 
   @Roles('Q')
   @UseGuards(RolesGuard)
-  @Get('filter/data?')
+  @Get('filter/data')
   async findByFilter(@Query('status') status: number, @Query('agent_id') agent_id: string) {
     // @Param('status') status: number, @Param('agent_id') agent_id: string
     // query @Param('status') status: number, @Param('agent_id') agent_id: string
@@ -49,7 +49,7 @@ export class QuoteController {
 
   @Roles('Q')
   @UseGuards(RolesGuard)
-  @Get('filter/datebetween?')
+  @Get('filter/datebetween')
   async findBydatebt(@Query('date_in') date_in: number, @Query('date_out') date_out: string) {
     // @Param('status') status: number, @Param('agent_id') agent_id: string
     // query @Param('status') status: number, @Param('agent_id') agent_id: string
