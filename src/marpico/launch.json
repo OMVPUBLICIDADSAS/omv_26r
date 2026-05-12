@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Nest Framework",
+      "args": ["start", "--debug", "--watch"],
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run"],
+      "console": "integratedTerminal",
+      "restart": true,
+      "sourceMaps": true
+    }
+  ]
+}
