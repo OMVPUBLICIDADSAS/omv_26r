@@ -11,9 +11,12 @@ export class EmailService {
 
   async quoteEmail(updateQuoteDto: UpdateQuoteDto, pdf: Buffer) {
     const maillist = updateQuoteDto.client_email.split(';');
+    // Sugerencia: Usar una variable específica para notificaciones, no la de login
+    const adminEmails = process.env.ADMIN_NOTIFY_EMAILS ? process.env.ADMIN_NOTIFY_EMAILS.split(';') : [];
+
     return await this.mails.sendMail({
-      to: [... maillist, 'gerente@omvpublicidad.com'],
-      from: process.env.EMAIL_USER, // from: updateQuoteDto.agent_email,
+      to: [...maillist, ...adminEmails],
+      from: process.env.EMAIL_USER,
       subject: 'OMVPUBLICIDAD. Respuesta a su solicitud de cotización.',
       // html: updateQuoteDto.htmlQuote,
       attachments: [
@@ -29,9 +32,12 @@ export class EmailService {
 
   async newQuoteEmail(createdQuote: UpdateQuoteDto, maillist: string) {
     const amaillist = maillist.split(';');
+    const adminEmails = process.env.ADMIN_NOTIFY_EMAILS ? process.env.ADMIN_NOTIFY_EMAILS.split(';') : [];
+
     return await this.mails.sendMail({
-      to: [... amaillist, 'gerente@omvpublicidad.com'],
-      from: process.env.EMAIL_USER, // from: updateQuoteDto.agent_email,
+      to: [...amaillist, ...adminEmails],
+      // from: adminEmails[0] || 'noreply@omvpublicidad.com',
+      from: process.env.EMAIL_USER,
       subject: `Nueva solicitud de cotización. Cliente: ${createdQuote.client_name} Correo: ${createdQuote.client_email}`,
     })
       .catch((e) => {
@@ -41,9 +47,11 @@ export class EmailService {
   }
 
   async defaultEmailHtml(emailDto: CreateEmailDto) {
+    const adminEmails = process.env.ADMIN_NOTIFY_EMAILS ? process.env.ADMIN_NOTIFY_EMAILS.split(';') : [];
+
     await this.mails.sendMail({
-      to: [emailDto.to, 'gerente@omvpublicidad.com'],
-      from: emailDto.from,
+      to: [emailDto.to, ...adminEmails],
+      from: process.env.EMAIL_USER,
       subject: emailDto.subject,
       html: emailDto.html,
     })
