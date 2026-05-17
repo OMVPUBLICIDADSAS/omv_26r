@@ -67,6 +67,7 @@ export class QuoteController {
   @UseGuards(RolesGuard)
   @Put(':id')
   async update(@Param('id') id: string, @Body() updateQuoteDto: UpdateQuoteDto) {
+    console.log(`QuoteController: Recibida petición PUT para ID: ${id}`);
     return await this.quoteService.update(id, updateQuoteDto);
   }
 

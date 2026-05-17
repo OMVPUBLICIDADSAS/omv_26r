@@ -55,14 +55,25 @@ export class QuoteService {
   }
 
   async update(id: string, updateQuoteDto: UpdateQuoteDto): Promise<Quote> {
-
+    console.log(`QuoteService: Recibida solicitud de actualización para ID: ${id} con status: ${updateQuoteDto.status}`);
+    
     // si user no es el mismo, no lo actualiza
     const prevQuote = await this.quoteModel.findById(id);
+    if (!prevQuote) {
+      console.error(`QuoteService: No se encontró la cotización con ID: ${id}`);
+      throw new HttpException('QUOTE_NOT_FOUND', 404);
+    }
+
     if (prevQuote.status === 4) throw new HttpException('FORBIDDEN', 403);
     if (updateQuoteDto.status === 4) {
       console.log(`QuoteService: Detectado status 4 para ID: ${id}. Iniciando generación de PDF y envío de correo.`);
       const pdfBuffer = await this.html2pdf(updateQuoteDto.htmlQuote);
-      await this.emails.quoteEmail(updateQuoteDto, Buffer.from(pdfBuffer));
+      if (pdfBuffer) {
+        await this.emails.quoteEmail(updateQuoteDto, Buffer.from(pdfBuffer));
+      } else {
+        console.error('QuoteService: Error al generar el PDF (buffer undefined). El correo no se enviará.');
+        throw new HttpException('PDF_GENERATION_FAILED', 500);
+      }
     }
     return await this.quoteModel.findByIdAndUpdate(id, updateQuoteDto, { new: true });
   }
