@@ -33,13 +33,18 @@ export class EmailService {
   }
 
   async newQuoteEmail(createdQuote: UpdateQuoteDto, maillist: string): Promise<void> {
-    console.log(`EmailService: Enviando notificación de nueva cotización a: ${maillist}`);
+    console.log(`EmailService: Iniciando newQuoteEmail. Destinatarios: ${maillist}`);
+    
+    if (!process.env.EMAIL_USER) {
+      console.error('EmailService: ERROR - La variable de entorno EMAIL_USER no está definida en Railway.');
+      throw new Error('Configuración de email faltante');
+    }
+
     const amaillist = maillist.split(';');
     const adminEmails = process.env.ADMIN_NOTIFY_EMAILS ? process.env.ADMIN_NOTIFY_EMAILS.split(';') : [];
 
     return await this.mails.sendMail({
       to: [...amaillist, ...adminEmails],
-      // from: adminEmails[0] || 'noreply@omvpublicidad.com',
       from: process.env.EMAIL_USER,
       subject: `Nueva solicitud de cotización. Cliente: ${createdQuote.client_name} Correo: ${createdQuote.client_email}`,
     })

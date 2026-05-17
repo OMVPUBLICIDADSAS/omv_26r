@@ -23,8 +23,14 @@ export class QuoteService {
     createQuoteDto.consecutive = data.consecutive.toString().padStart(6, '0');
     const createdQuote = new this.quoteModel(createQuoteDto);
     console.log(`QuoteService: Enviando correo de notificación (newQuoteEmail) para cliente: ${createdQuote.client_name}`);
-    await this.emails.newQuoteEmail(createdQuote, data.notifmail);
-    console.log('QuoteService: Correo de notificación solicitado.');
+    
+    try {
+      await this.emails.newQuoteEmail(createdQuote, data.notifmail);
+      console.log('QuoteService: Correo de notificación enviado exitosamente.');
+    } catch (emailError) {
+      console.error('QuoteService: El correo de notificación falló, pero la cotización se guardará:', emailError.message);
+    }
+
     return await createdQuote.save();
   }
 
