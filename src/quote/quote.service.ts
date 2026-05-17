@@ -18,10 +18,13 @@ export class QuoteService {
   ) { }
 
   async create(createQuoteDto: CreateQuoteDto): Promise<Quote> {
+    console.log('QuoteService: Iniciando proceso de creación de cotización...');
     const data = await this.generalService.consecutive();
     createQuoteDto.consecutive = data.consecutive.toString().padStart(6, '0');
     const createdQuote = new this.quoteModel(createQuoteDto);
+    console.log(`QuoteService: Enviando correo de notificación (newQuoteEmail) para cliente: ${createdQuote.client_name}`);
     await this.emails.newQuoteEmail(createdQuote, data.notifmail);
+    console.log('QuoteService: Correo de notificación solicitado.');
     return await createdQuote.save();
   }
 
@@ -45,8 +48,10 @@ export class QuoteService {
   }
 
   async resend(id: string, updateQuoteDto: UpdateQuoteDto): Promise<Quote> {
+    console.log(`QuoteService: Iniciando re-envío de cotización ID: ${id}`);
     const pdfBuffer = await this.html2pdf(updateQuoteDto.htmlQuote);
-    return this.emails.quoteEmail(updateQuoteDto, Buffer.from(pdfBuffer));
+    await this.emails.quoteEmail(updateQuoteDto, Buffer.from(pdfBuffer));
+    return await this.quoteModel.findById(id).exec();
   }
 
   async update(id: string, updateQuoteDto: UpdateQuoteDto): Promise<Quote> {
@@ -55,8 +60,9 @@ export class QuoteService {
     const prevQuote = await this.quoteModel.findById(id);
     if (prevQuote.status === 4) throw new HttpException('FORBIDDEN', 403);
     if (updateQuoteDto.status === 4) {
+      console.log(`QuoteService: Detectado status 4 para ID: ${id}. Iniciando generación de PDF y envío de correo.`);
       const pdfBuffer = await this.html2pdf(updateQuoteDto.htmlQuote);
-      return this.emails.quoteEmail(updateQuoteDto, Buffer.from(pdfBuffer));
+      await this.emails.quoteEmail(updateQuoteDto, Buffer.from(pdfBuffer));
     }
     return await this.quoteModel.findByIdAndUpdate(id, updateQuoteDto, { new: true });
   }
@@ -68,6 +74,7 @@ export class QuoteService {
   // https://github.com/saemhco/nestjs-html-pdf
   // https://github.com/saemhco/nestjs-html-pdf/blob/main/src/index.ts
   async html2pdf(htmlQuote: string, options = {}) {
+    console.log('QuoteService: Lanzando Puppeteer para generar PDF...');
     try {
       const browser = await puppeteer.launch({
         headless: true,
@@ -88,11 +95,12 @@ export class QuoteService {
         ...options,
       });
       await browser.close();
+      console.log('QuoteService: PDF generado con éxito.');
       // process.exit();
       return buffer;
 
     } catch (e) {
-      console.log(e);
+      console.error('QuoteService: ERROR crítico en html2pdf (Puppeteer):', e);
       // await browser.close();
     }
   }

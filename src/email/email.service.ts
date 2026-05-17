@@ -9,7 +9,8 @@ export class EmailService {
 
   constructor(private mails: MailerService) { }
 
-  async quoteEmail(updateQuoteDto: UpdateQuoteDto, pdf: Buffer) {
+  async quoteEmail(updateQuoteDto: UpdateQuoteDto, pdf: Buffer): Promise<void> {
+    console.log(`EmailService: Preparando envío de cotización PDF a: ${updateQuoteDto.client_email}`);
     const maillist = updateQuoteDto.client_email.split(';');
     // Sugerencia: Usar una variable específica para notificaciones, no la de login
     const adminEmails = process.env.ADMIN_NOTIFY_EMAILS ? process.env.ADMIN_NOTIFY_EMAILS.split(';') : [];
@@ -24,13 +25,15 @@ export class EmailService {
         // { filename: `${updateQuoteDto.client_name}_cotiza.html`, content: updateQuoteDto.htmlQuote }
       ],
     })
+      .then(() => console.log('EmailService: Correo enviado exitosamente.'))
       .catch((e) => {
-        console.error(e);
+        console.error('EmailService: Error al enviar quoteEmail:', e);
         throw new HttpException(`ERROR_EMAIL ${e}`, HttpStatus.INTERNAL_SERVER_ERROR);
       });
   }
 
-  async newQuoteEmail(createdQuote: UpdateQuoteDto, maillist: string) {
+  async newQuoteEmail(createdQuote: UpdateQuoteDto, maillist: string): Promise<void> {
+    console.log(`EmailService: Enviando notificación de nueva cotización a: ${maillist}`);
     const amaillist = maillist.split(';');
     const adminEmails = process.env.ADMIN_NOTIFY_EMAILS ? process.env.ADMIN_NOTIFY_EMAILS.split(';') : [];
 
@@ -40,8 +43,9 @@ export class EmailService {
       from: process.env.EMAIL_USER,
       subject: `Nueva solicitud de cotización. Cliente: ${createdQuote.client_name} Correo: ${createdQuote.client_email}`,
     })
+      .then(() => console.log('EmailService: Notificación de nueva cotización enviada.'))
       .catch((e) => {
-        console.error(e);
+        console.error('EmailService: Error al enviar newQuoteEmail:', e);
         throw new HttpException(`ERROR_EMAIL ${e}`, HttpStatus.INTERNAL_SERVER_ERROR);
       });
   }
