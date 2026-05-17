@@ -35,7 +35,7 @@ const mailerLogger = new Logger('MailerModule');
           host: configService.get<string>('SMTP_EMAIL_LONG'),
           port: configService.get<number>('SMTP_PORT'),
           // Para la mayoría de servicios como Gmail, `secure` es true en el puerto 465.
-          secure: Number(configService.get<number>('SMTP_PORT')) === 465,
+          secure: false,
           auth: {
             user: configService.get<string>('EMAIL_USER'),
             pass: configService.get<string>('EMAIL_PASS_16'),

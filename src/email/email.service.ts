@@ -27,7 +27,7 @@ export class EmailService {
     })
       .then(() => console.log('EmailService: Correo enviado exitosamente.'))
       .catch((e) => {
-        console.error('EmailService: Error al enviar quoteEmail:', e);
+        console.error('EmailService: Error SMTP (quoteEmail). Detalle:', { message: e.message, code: e.code, command: e.command });
         throw new HttpException(`ERROR_EMAIL ${e}`, HttpStatus.INTERNAL_SERVER_ERROR);
       });
   }
@@ -35,10 +35,11 @@ export class EmailService {
   async newQuoteEmail(createdQuote: UpdateQuoteDto, maillist: string): Promise<void> {
     console.log(`EmailService: Iniciando newQuoteEmail. Destinatarios: ${maillist}`);
     
-    if (!process.env.EMAIL_USER) {
-      console.error('EmailService: ERROR - La variable de entorno EMAIL_USER no está definida en Railway.');
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.error('EmailService: ERROR - Faltan credenciales (EMAIL_USER o EMAIL_PASS) en el entorno.');
       throw new Error('Configuración de email faltante');
     }
+    console.log(`EmailService: Usando cuenta: ${process.env.EMAIL_USER}. (Pass len: ${process.env.EMAIL_PASS.length})`);
 
     const amaillist = maillist.split(';');
     const adminEmails = process.env.ADMIN_NOTIFY_EMAILS ? process.env.ADMIN_NOTIFY_EMAILS.split(';') : [];
@@ -50,7 +51,7 @@ export class EmailService {
     })
       .then(() => console.log('EmailService: Notificación de nueva cotización enviada.'))
       .catch((e) => {
-        console.error('EmailService: Error al enviar newQuoteEmail:', e);
+        console.error('EmailService: Error SMTP (newQuoteEmail). Detalle:', { message: e.message, code: e.code, command: e.command });
         throw new HttpException(`ERROR_EMAIL ${e}`, HttpStatus.INTERNAL_SERVER_ERROR);
       });
   }
