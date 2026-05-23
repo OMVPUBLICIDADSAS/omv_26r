@@ -41,6 +41,9 @@ const mailerLogger = new Logger('MailerModule');
             user: configService.get<string>('EMAIL_USER'),
             pass: configService.get<string>('EMAIL_PASS_16'),
           },
+          // Debug activado para ver el rastro de la conexión en Railway
+          debug: true,
+          logger: true,
           // Esta opción ayuda a evitar bloqueos de conexión en entornos de nube como Railway
           tls: {
             rejectUnauthorized: false,
