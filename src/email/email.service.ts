@@ -35,11 +35,11 @@ export class EmailService {
   async newQuoteEmail(createdQuote: UpdateQuoteDto, maillist: string): Promise<void> {
     console.log(`EmailService: Iniciando newQuoteEmail. Destinatarios: ${maillist}`);
     
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      console.error('EmailService: ERROR - Faltan credenciales (EMAIL_USER o EMAIL_PASS) en el entorno.');
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS_16) {
+      console.error('EmailService: ERROR - Faltan credenciales (EMAIL_USER o EMAIL_PASS_16) en el entorno.');
       throw new Error('Configuración de email faltante');
     }
-    console.log(`EmailService: Usando cuenta: ${process.env.EMAIL_USER}. (Pass len: ${process.env.EMAIL_PASS.length})`);
+    console.log(`EmailService: Usando cuenta: ${process.env.EMAIL_USER}. (Pass len: ${process.env.EMAIL_PASS_16.length})`);
 
     const amaillist = maillist.split(';');
     const adminEmails = process.env.ADMIN_NOTIFY_EMAILS ? process.env.ADMIN_NOTIFY_EMAILS.split(';') : [];

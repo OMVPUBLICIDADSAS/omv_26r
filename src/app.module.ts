@@ -31,14 +31,19 @@ const mailerLogger = new Logger('MailerModule');
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
+        const port = configService.get<number>('SMTP_PORT');
         const transportOptions = {
           host: configService.get<string>('SMTP_EMAIL_LONG'),
-          port: configService.get<number>('SMTP_PORT'),
-          // Para la mayoría de servicios como Gmail, `secure` es true en el puerto 465.
-          secure: false,
+          port: port,
+          // Para el puerto 465 'secure' debe ser true. Para 587 debe ser false.
+          secure: port === 465,
           auth: {
             user: configService.get<string>('EMAIL_USER'),
             pass: configService.get<string>('EMAIL_PASS_16'),
+          },
+          // Esta opción ayuda a evitar bloqueos de conexión en entornos de nube como Railway
+          tls: {
+            rejectUnauthorized: false,
           },
         };
         mailerLogger.log(`📧 Mailer configurado para host: ${transportOptions.host}:${transportOptions.port}`);
