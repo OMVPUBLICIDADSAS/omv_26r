@@ -31,22 +31,27 @@ const mailerLogger = new Logger('MailerModule');
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const port = configService.get<number>('SMTP_PORT');
+        const port = Number(configService.get<number>('SMTP_PORT'));
         const transportOptions = {
           host: configService.get<string>('SMTP_EMAIL_LONG'),
           port: port,
-          // Para el puerto 465 'secure' debe ser true. Para 587 debe ser false.
           secure: port === 465,
           auth: {
             user: configService.get<string>('EMAIL_USER'),
             pass: configService.get<string>('EMAIL_PASS_16'),
           },
-          // Debug activado para ver el rastro de la conexión en Railway
           debug: true,
           logger: true,
+          // Timeouts agresivos para evitar el ETIMEDOUT en entornos de nube
+          connectionTimeout: 30000, 
+          greetingTimeout: 30000,
+          socketTimeout: 30000,
           // Esta opción ayuda a evitar bloqueos de conexión en entornos de nube como Railway
           tls: {
             rejectUnauthorized: false,
+            minVersion: 'TLSv1.2',
+            // Ayuda a la negociación del certificado SSL con servidores Pro
+            servername: configService.get<string>('SMTP_EMAIL_LONG'),
           },
         };
         mailerLogger.log(`📧 Mailer configurado para host: ${transportOptions.host}:${transportOptions.port}`);

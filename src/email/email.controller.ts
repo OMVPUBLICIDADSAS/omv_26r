@@ -13,4 +13,9 @@ export class EmailController {
   defEmailHtml(@Body() createEmailDto: CreateEmailDto) {
     return this.emailService.defaultEmailHtml(createEmailDto);
   }
+
+  @Post('resend')
+  defEmailHtmlResend(@Body() createEmailDto: CreateEmailDto) {
+    return this.emailService.defaultEmailHtmlResend(createEmailDto);
+  }
 }
