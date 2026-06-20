@@ -27,8 +27,8 @@ export class QuoteService {
     try {
       await this.emails.newQuoteEmail(createdQuote, data.notifmail);
       console.log('QuoteService: Correo de notificación enviado exitosamente.');
-    } catch (emailError) {
-      console.error('QuoteService: El correo de notificación falló, pero la cotización se guardará:', emailError.message);
+    } catch (emailError: any) {
+      console.error('QuoteService: El correo de notificación falló, pero la cotización se guardará:', emailError?.message || emailError);
     }
 
     return await createdQuote.save();
@@ -50,7 +50,7 @@ export class QuoteService {
   }
 
   async findOne(id: string) {
-    return await this.quoteModel.findById({ consecutive: id }).exec();
+    return await this.quoteModel.findOne({ consecutive: id }).exec();
   }
 
   async resend(id: string, updateQuoteDto: UpdateQuoteDto): Promise<Quote> {
@@ -92,8 +92,9 @@ export class QuoteService {
   // https://github.com/saemhco/nestjs-html-pdf/blob/main/src/index.ts
   async html2pdf(htmlQuote: string, options = {}) {
     console.log('QuoteService: Lanzando Puppeteer para generar PDF...');
+    let browser;
     try {
-      const browser = await puppeteer.launch({
+      browser = await puppeteer.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox']
       });
@@ -118,7 +119,8 @@ export class QuoteService {
 
     } catch (e) {
       console.error('QuoteService: ERROR crítico en html2pdf (Puppeteer):', e);
-      // await browser.close();
+      if (browser) await browser.close();
+      return null;
     }
   }
 }

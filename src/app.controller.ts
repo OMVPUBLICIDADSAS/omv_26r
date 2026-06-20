@@ -3,7 +3,7 @@ import { AppService } from './app.service';
 import { join } from 'path';
 import { Observable, of } from 'rxjs';
 
-@Controller()
+@Controller('')
 export class AppController {
   constructor(private readonly appService: AppService) { }
 
@@ -13,7 +13,7 @@ export class AppController {
   }
 
   @Get('assets/images/:imagename')
-  getImageByName(@Param('imagename') imagename, @Res() res): Observable<object> {
+  getImageByName(@Param('imagename') imagename: string, @Res() res): Observable<object> {
     // console.log(join(__dirname, '..', 'public/assets/images', imagename));
     return of(res.sendFile(join(__dirname, '..', 'public/assets/images', imagename)))
   }

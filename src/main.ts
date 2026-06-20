@@ -58,10 +58,12 @@ async function bootstrap() {
   
   // para servir html desde Express
   // https://stackoverflow.com/questions/54680459/serving-static-content-alongisde-angular-app
-  app.useStaticAssets(join(__dirname, '..', 'page'), { prefix: "/page/" });
-  app.useStaticAssets(join(__dirname, '..', 'app'), { prefix: "/app/" });
-  app.useStaticAssets(join(__dirname, '..', 'page'), { prefix: "/" });
-  // app.useStaticAssets(join(__dirname, '..', 'page'), { prefix: "*" });
+  // Asegúrate de que los paths no terminen en slash si el motor de rutas da problemas
+  app.useStaticAssets(join(__dirname, '..', 'page'), { prefix: "/page" });
+  app.useStaticAssets(join(__dirname, '..', 'app'), { prefix: "/app" });
+
+  // Evitar usar "/" como prefijo en NestJS 11 si tienes rutas en AppController
+  // Si necesitas servir la landing page en la raíz, es mejor usar un controlador que devuelva el index.html
   
   const port = configService.get<number>('PORT') || 3000;
   await app.listen(port);
