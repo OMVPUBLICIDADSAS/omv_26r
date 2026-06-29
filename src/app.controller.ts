@@ -3,9 +3,14 @@ import { AppService } from './app.service';
 import { join } from 'path';
 import { Observable, of } from 'rxjs';
 
-@Controller('')
+@Controller()
 export class AppController {
   constructor(private readonly appService: AppService) { }
+
+  @Get()
+  getRoot(@Res() res) {
+    return res.sendFile(join(__dirname, '..', 'page', 'index.html'));
+  }
 
   @Get('hello')
   getHello(): string {
@@ -25,6 +30,6 @@ export class AppController {
     return of(res.sendFile(join(__dirname, '..', 'public/assets/images', imagename)))
   }
   */
-  
+
 
 }

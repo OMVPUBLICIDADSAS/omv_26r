@@ -21,8 +21,8 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
 
   const corsOrigins = configService.get<string>('CORS_ORIGINS');
-  const allowedOrigins = corsOrigins 
-    ? corsOrigins.split(',').map(origin => origin.trim()) 
+  const allowedOrigins = corsOrigins
+    ? corsOrigins.split(',').map(origin => origin.trim())
     : ['http://localhost:4201'];
 
   logger.log(`✅ Orígenes permitidos cargados: ${JSON.stringify(allowedOrigins)}`);
@@ -55,7 +55,7 @@ async function bootstrap() {
   SwaggerModule.setup('documentation', app, document);
   app.useGlobalPipes(new ValidationPipe());
 
-  
+
   // para servir html desde Express
   // https://stackoverflow.com/questions/54680459/serving-static-content-alongisde-angular-app
   // Asegúrate de que los paths no terminen en slash si el motor de rutas da problemas
@@ -64,7 +64,7 @@ async function bootstrap() {
 
   // Evitar usar "/" como prefijo en NestJS 11 si tienes rutas en AppController
   // Si necesitas servir la landing page en la raíz, es mejor usar un controlador que devuelva el index.html
-  
+
   const port = configService.get<number>('PORT') || 3000;
   await app.listen(port);
   logger.log(`🚀 Application is running on: http://localhost:${port}`);
