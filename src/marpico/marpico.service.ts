@@ -34,13 +34,20 @@ export class MarpicoService {
 
   async updateFromMarpico() {
     try {
+      const apiKey = this.configService.get<string>('API_KEY');
+      const marpicoUrl = this.configService.get<string>('MARPICO_URL');
+      
+      if (!apiKey || !marpicoUrl) {
+        this.logger.error(`Faltan variables de entorno: API_KEY=${!!apiKey}, MARPICO_URL=${!!marpicoUrl}`);
+      }
+
       const headersRequest = {
         'Content-Type': 'application/json',
-        'Authorization': 'Api-Key ' + this.configService.get<string>('API_KEY')
+        'Authorization': 'Api-Key ' + apiKey
       }
 
       const response = await lastValueFrom(
-        this.httpService.get(this.configService.get<string>('MARPICO_URL'), { headers: headersRequest })
+        this.httpService.get(marpicoUrl, { headers: headersRequest })
       );
 
       if (!response || !response.data) {
@@ -64,16 +71,28 @@ export class MarpicoService {
       const message = isError ? error.message : 'INTERNAL_SERVER_ERROR';
       const stack = isError ? error.stack : undefined;
       const status = (error as any)?.status || 500;
+      
+      const axiosResponse = (error as any)?.response?.data;
+      if (axiosResponse) {
+        this.logger.error(`Error de red con Marpico: ${JSON.stringify(axiosResponse)}`);
+      }
 
-      this.logger.error('Fallo en la actualización de Marpico', stack);
+      this.logger.error(`Fallo en la actualización de Marpico: ${message}`, stack);
       throw new HttpException(message, status);
     }
   }
 
   private async data2Schema(data: any) {
     const gen: any = await this.generalService.consecutive();
-    const marpicoCatTitleList = gen.catagMARPICO as { key: string, value: string }[];
+    if (!gen) {
+       this.logger.warn('generalService.consecutive() retornó null/undefined');
+    }
+    const marpicoCatTitleList = (gen?.catagMARPICO || []) as { key: string, value: string }[];
     
+    if (marpicoCatTitleList.length === 0) {
+      this.logger.warn('La lista catagMARPICO está vacía o no existe en la BD local.');
+    }
+
     // Optimizamos búsqueda de categorías con un Map
     const categoryMap = new Map(marpicoCatTitleList.map(cat => [cat.key, cat.value]));
 
